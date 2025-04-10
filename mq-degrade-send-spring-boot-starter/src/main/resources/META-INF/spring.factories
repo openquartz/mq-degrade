@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.openquartz.mqdegrade.sender.starter.autoconfig.DegradeConfiguration,\
+  com.openquartz.mqdegrade.sender.starter.autoconfig.ApolloDegradeConfigRefresherConfiguration

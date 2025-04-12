@@ -3,6 +3,11 @@ package com.openquartz.mqdegrade.sender.starter.autoconfig;
 import com.openquartz.mqdegrade.sender.common.TransactionProxy;
 import com.openquartz.mqdegrade.sender.common.alert.DefaultDegradeAlertImpl;
 import com.openquartz.mqdegrade.sender.common.alert.DegradeAlert;
+import com.openquartz.mqdegrade.sender.core.compensate.AlertMachineCompensateJob;
+import com.openquartz.mqdegrade.sender.core.compensate.DegradeMessageCompensateService;
+import com.openquartz.mqdegrade.sender.core.compensate.GlobalMachineCompensateJob;
+import com.openquartz.mqdegrade.sender.core.compensate.SelfMachineCompensateJob;
+import com.openquartz.mqdegrade.sender.core.compensate.impl.DegradeMessageCompensateServiceImpl;
 import com.openquartz.mqdegrade.sender.core.config.DegradeMessageConfig;
 import com.openquartz.mqdegrade.sender.core.context.DefaultThreadContextSerializer;
 import com.openquartz.mqdegrade.sender.core.context.ThreadContextSerializer;
@@ -17,6 +22,7 @@ import com.openquartz.mqdegrade.sender.starter.autoconfig.impl.DegradeMessageCon
 import com.openquartz.mqdegrade.sender.starter.autoconfig.property.*;
 import com.openquartz.mqdegrade.sender.starter.autoconfig.transaction.DefaultTransactionProxyImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -106,5 +112,35 @@ public class DegradeConfiguration {
     public DegradeAlert degradeAlert() {
         return new DefaultDegradeAlertImpl();
     }
+
+    @Bean
+    public DegradeMessageCompensateService degradeMessageCompensateService(DegradeMessageConfig degradeMessageConfig,
+                                                                           DegradeMessageStorageService degradeMessageStorageService,
+                                                                           ThreadContextSerializer threadContextSerializer,
+                                                                           DegradeAlert degradeAlert) {
+        return new DegradeMessageCompensateServiceImpl(degradeMessageConfig, degradeMessageStorageService, threadContextSerializer, degradeAlert);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "mq.degrade.compensate.enable", havingValue = "true", matchIfMissing = true)
+    public GlobalMachineCompensateJob globalMachineCompensateJob(DegradeMessageCompensateService degradeMessageCompensateService,
+                                                                 DegradeMessageConfig degradeMessageConfig) {
+        return new GlobalMachineCompensateJob(degradeMessageCompensateService, degradeMessageConfig);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "mq.degrade.compensate.enable", havingValue = "true", matchIfMissing = true)
+    public SelfMachineCompensateJob selfMachineCompensateJob(DegradeMessageCompensateService degradeMessageCompensateService,
+                                                             DegradeMessageConfig degradeMessageConfig) {
+        return new SelfMachineCompensateJob(degradeMessageCompensateService, degradeMessageConfig);
+    }
+
+    @Bean
+    @ConditionalOnExpression("${mq.degrade.compensate.enable:false} && ${mq.degrade.compensate.alert-enable:true}")
+    public AlertMachineCompensateJob alertMachineCompensateJob(DegradeMessageCompensateService degradeMessageCompensateService,
+                                                               DegradeMessageConfig degradeMessageConfig) {
+        return new AlertMachineCompensateJob(degradeMessageCompensateService, degradeMessageConfig);
+    }
+
 
 }

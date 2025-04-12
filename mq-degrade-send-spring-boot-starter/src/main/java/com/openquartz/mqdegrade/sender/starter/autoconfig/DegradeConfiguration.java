@@ -19,6 +19,10 @@ import com.openquartz.mqdegrade.sender.persist.service.DegradeMessageStorageServ
 import com.openquartz.mqdegrade.sender.persist.service.impl.DegradeMessageStorageServiceImpl;
 import com.openquartz.mqdegrade.sender.starter.autoconfig.impl.DefaultDegradeMessageFilterImpl;
 import com.openquartz.mqdegrade.sender.starter.autoconfig.impl.DegradeMessageConfigImpl;
+import com.openquartz.mqdegrade.sender.starter.autoconfig.intercept.SendRouterAnnotationAdvisor;
+import com.openquartz.mqdegrade.sender.starter.autoconfig.intercept.SendRouterInterceptor;
+import com.openquartz.mqdegrade.sender.starter.autoconfig.processor.DegradeRouterAnnotationProcessor;
+import com.openquartz.mqdegrade.sender.starter.autoconfig.processor.SendRouterAnnotationProcessor;
 import com.openquartz.mqdegrade.sender.starter.autoconfig.property.*;
 import com.openquartz.mqdegrade.sender.starter.autoconfig.transaction.DefaultTransactionProxyImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -142,5 +146,24 @@ public class DegradeConfiguration {
         return new AlertMachineCompensateJob(degradeMessageCompensateService, degradeMessageConfig);
     }
 
+    @Bean
+    public SendRouterAnnotationProcessor sendRouterAnnotationProcessor() {
+        return new SendRouterAnnotationProcessor();
+    }
+
+    @Bean
+    public DegradeRouterAnnotationProcessor degradeRouterAnnotationProcessor() {
+        return new DegradeRouterAnnotationProcessor();
+    }
+
+    @Bean
+    public SendRouterInterceptor sendRouterInterceptor(SendMessageFacade sendMessageFacade) {
+        return new SendRouterInterceptor(sendMessageFacade);
+    }
+
+    @Bean
+    public SendRouterAnnotationAdvisor sendRouterAnnotationAdvisor(SendRouterInterceptor sendRouterInterceptor) {
+        return new SendRouterAnnotationAdvisor(sendRouterInterceptor);
+    }
 
 }

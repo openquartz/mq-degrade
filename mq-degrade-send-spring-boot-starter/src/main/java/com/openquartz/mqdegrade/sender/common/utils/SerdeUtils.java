@@ -15,8 +15,14 @@ public class SerdeUtils {
     private SerdeUtils() {
     }
 
-    private static JsonConvertor jsonConvertor;
+    // 默认使用Jackson序列化
+    private static JsonConvertor jsonConvertor = new JacksonConvertor();
 
+    /**
+     * register json convertor. 可自定义覆盖。
+     *
+     * @param convertor json convertor
+     */
     public static void register(JsonConvertor convertor) {
         jsonConvertor = convertor;
     }
@@ -53,6 +59,15 @@ public class SerdeUtils {
         }
     }
 
+    /**
+     * 序列化反序列化转换
+     *
+     * @param obj   obj
+     * @param clazz target class
+     * @param <T>   source class
+     * @param <R>   target class
+     * @return target obj
+     */
     @SuppressWarnings("unchecked")
     public static <T, R> R serdeConvert(T obj, Class<R> clazz) {
 

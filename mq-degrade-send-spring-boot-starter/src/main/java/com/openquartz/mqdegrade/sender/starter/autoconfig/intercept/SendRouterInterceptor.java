@@ -4,6 +4,7 @@ import com.openquartz.mqdegrade.sender.annotation.SendRouter;
 import com.openquartz.mqdegrade.sender.core.send.SendMessageFacade;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.core.annotation.AnnotationUtils;
 
 /**
  * SendRouterInterceptor
@@ -21,7 +22,7 @@ public class SendRouterInterceptor implements MethodInterceptor {
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
 
-        SendRouter sendRouter = invocation.getMethod().getAnnotation(SendRouter.class);
+        SendRouter sendRouter = AnnotationUtils.findAnnotation(invocation.getMethod(), SendRouter.class);
         if (sendRouter == null) {
             return invocation.proceed();
         }

@@ -28,12 +28,12 @@ public class DegradeCommonProperty {
     /**
      * 是否开启强制降级
      */
-    private boolean enableForceDegrade = true;
+    private boolean enableForceDegrade = false;
 
     /**
      * 是否开启自动降级
      */
-    private boolean enableAutoDegrade = true;
+    private boolean enableAutoDegrade = false;
 
     /**
      * 资源级降级配置

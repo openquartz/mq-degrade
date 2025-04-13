@@ -20,7 +20,7 @@ public class DegradeCompensateProperty {
     /**
      * 是否开启补偿
      */
-    private boolean enable = false;
+    private boolean enable = true;
 
     /**
      * 是否开启预警补偿
@@ -50,7 +50,7 @@ public class DegradeCompensateProperty {
     /**
      * 预警补偿配置
      */
-    private DegradeCompensateScheduleProperty alert = new DegradeCompensateScheduleProperty(3600,60,600);
+    private DegradeCompensateScheduleProperty alert = new DegradeCompensateScheduleProperty(7200,1800,600);
 
     @Data
     public static class DegradeCompensateScheduleProperty {

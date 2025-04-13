@@ -11,6 +11,8 @@
 
     <modules>
         <module>mq-degrade-send-spring-boot-starter</module>
+        <module>mq-degrade-example</module>
+        <module>mq-degrade-example/mq-degrade-example-send</module>
     </modules>
 
     <name>${project.artifactId}</name>
@@ -22,7 +24,7 @@
         <spring-boot.version>2.3.2.RELEASE</spring-boot.version>
         <sentinel.version>1.8.7</sentinel.version>
         <apollo.version>2.3.0</apollo.version>
-        <spring-cloud.version>4.1.3</spring-cloud.version>
+        <spring-cloud.version>2.2.2.RELEASE</spring-cloud.version>
 
         <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
@@ -70,6 +72,12 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-context</artifactId>
                 <version>${spring-cloud.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.openquartz</groupId>
+                <artifactId>mq-degrade-send-spring-boot-starter</artifactId>
+                <version>${revision}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

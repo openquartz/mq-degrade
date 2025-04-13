@@ -41,7 +41,7 @@ public class DegradeRouterAnnotationProcessor implements BeanPostProcessor {
             throw new DegradeException(String.format("resource:%s,method:%s param length must be 1", degradeRouter.resource(), method.getName()));
         }
 
-        if (!(method.getReturnType().isAssignableFrom(Void.class) && method.getReturnType().isAssignableFrom(Boolean.class))) {
+        if (!(method.getReturnType().isAssignableFrom(void.class)) && !method.getReturnType().isAssignableFrom(Boolean.class)) {
             log.error("[DegradeRouterAnnotationProcessor#processMethod] bean method:{} return type must be boolean or void!", method.getName());
             throw new DegradeException(String.format("resource:%s,method:%s return type must be boolean or void", degradeRouter.resource(), method.getName()));
         }

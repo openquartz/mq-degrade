@@ -26,12 +26,14 @@ import com.openquartz.mqdegrade.sender.starter.autoconfig.processor.SendRouterAn
 import com.openquartz.mqdegrade.sender.starter.autoconfig.property.*;
 import com.openquartz.mqdegrade.sender.starter.autoconfig.transaction.DefaultTransactionProxyImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Role;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.concurrent.Executor;
@@ -162,6 +164,7 @@ public class DegradeConfiguration {
     }
 
     @Bean
+    @Role(value = BeanDefinition.ROLE_INFRASTRUCTURE)
     public SendRouterAnnotationAdvisor sendRouterAnnotationAdvisor(SendRouterInterceptor sendRouterInterceptor) {
         return new SendRouterAnnotationAdvisor(sendRouterInterceptor);
     }

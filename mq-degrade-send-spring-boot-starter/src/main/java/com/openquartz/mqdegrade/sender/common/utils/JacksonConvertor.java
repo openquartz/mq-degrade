@@ -30,7 +30,6 @@ public class JacksonConvertor implements JsonConvertor {
     public ObjectMapper newMapper() {
         final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setDateFormat(dateFormat);
-        objectMapper.setTimeZone(TimeZone.getTimeZone("UTC"));
         objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         objectMapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
         objectMapper.enable(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);

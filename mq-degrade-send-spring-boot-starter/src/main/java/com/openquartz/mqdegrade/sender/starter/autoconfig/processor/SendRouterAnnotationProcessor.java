@@ -43,14 +43,14 @@ public class SendRouterAnnotationProcessor implements BeanPostProcessor {
             throw new DegradeException(String.format("resource:%s,method:%s param length must be 1", sendRouter.resource(), method.getName()));
         }
 
-        if (!(method.getReturnType().isAssignableFrom(void.class)) && !(method.getReturnType().isAssignableFrom(Boolean.class))) {
+        if (!(method.getReturnType().isAssignableFrom(void.class)) && !(method.getReturnType().isAssignableFrom(boolean.class))) {
             log.error("[SendRouterAnnotationProcessor#processMethod] bean method:{} return type must be boolean or void!", method.getName());
             throw new DegradeException(String.format("resource:%s,method:%s return type must be boolean or void", sendRouter.resource(), method.getName()));
         }
 
         SendRouterFactory.register(sendRouter.resource(), method.getParameterTypes()[0], inv -> {
             try {
-                if (method.getReturnType().isAssignableFrom(Boolean.class)) {
+                if (method.getReturnType().isAssignableFrom(boolean.class)) {
                     return (boolean) method.invoke(bean, inv);
                 }
                 method.invoke(bean, inv);

@@ -8,8 +8,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class MessageProducer {
 
+    /**
+     * 降级传输到 “test" 的路由方法中。
+     *
+     * @param message 消息
+     */
     @SendRouter(resource = "test")
-    public void sendMessage(String message) {
+    public boolean sendMessage(String message) {
         log.info("[MessageProducer#sendMessage] sendMessage:{}", message);
+        return true;
     }
 }

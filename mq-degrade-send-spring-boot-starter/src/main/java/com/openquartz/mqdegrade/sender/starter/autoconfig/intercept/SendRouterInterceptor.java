@@ -28,7 +28,7 @@ public class SendRouterInterceptor implements MethodInterceptor {
         }
 
         boolean send = sendMessageFacade.send(invocation.getArguments()[0], sendRouter.resource());
-        if (invocation.getMethod().getReturnType().isAssignableFrom(Boolean.class)) {
+        if (invocation.getMethod().getReturnType().isAssignableFrom(boolean.class)) {
             return send;
         }
         return null;

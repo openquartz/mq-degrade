@@ -149,16 +149,19 @@ public class DegradeConfiguration {
     }
 
     @Bean
+    @Role(value = BeanDefinition.ROLE_INFRASTRUCTURE)
     public SendRouterAnnotationProcessor sendRouterAnnotationProcessor() {
         return new SendRouterAnnotationProcessor();
     }
 
     @Bean
+    @Role(value = BeanDefinition.ROLE_INFRASTRUCTURE)
     public DegradeRouterAnnotationProcessor degradeRouterAnnotationProcessor() {
         return new DegradeRouterAnnotationProcessor();
     }
 
     @Bean
+    @Role(value = BeanDefinition.ROLE_INFRASTRUCTURE)
     public SendRouterInterceptor sendRouterInterceptor(SendMessageFacade sendMessageFacade) {
         return new SendRouterInterceptor(sendMessageFacade);
     }

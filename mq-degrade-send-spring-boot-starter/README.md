@@ -234,3 +234,14 @@ class Test2 {
 #### 3、自定义补偿调度支持
  服务补偿默认使用do-Raper的方式进行调度，使用本机线程池。不依赖第三方调度中心。如果用户有需要接入自身使用的第三方调度中心。例如xxl-job,dis-job,powerjob 等。可以自行实现。
  只需调用`com.openquartz.mqdegrade.sender.core.compensate.DegradeMessageCompensateService` 类中的对应的补偿接口即可。
+ 
+#### 4、拦截器支持
+拦截器支持发送拦截和降级拦截支持。多个拦截器时按照优先级顺序执行。
+
+- 发送拦截
+可以实现接口: `com.openquartz.mqdegrade.sender.core.interceptor.SendInterceptor`
+
+- 降级拦截
+可以实现接口: `com.openquartz.mqdegrade.sender.core.interceptor.DegradeTransferInterceptor`
+
+用户可以将自定义的拦截器实现注入到`com.openquartz.mqdegrade.sender.core.interceptor.InterceptorFactory` 工厂中即可。

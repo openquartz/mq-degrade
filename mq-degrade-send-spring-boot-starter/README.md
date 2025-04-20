@@ -237,6 +237,7 @@ class Test2 {
  
 #### 4、拦截器支持
 拦截器支持发送拦截和降级拦截支持。多个拦截器时按照优先级顺序执行。
+用户可以使用拦截器做**Metrics打点监控**、**自定义预警**、**中断**等操作。
 
 - 发送拦截
 可以实现接口: `com.openquartz.mqdegrade.sender.core.interceptor.SendInterceptor`

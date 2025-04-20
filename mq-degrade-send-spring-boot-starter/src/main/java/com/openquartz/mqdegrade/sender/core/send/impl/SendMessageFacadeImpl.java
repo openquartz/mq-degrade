@@ -50,7 +50,7 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
     public <T> boolean send(T message, String resource) {
 
         Collection<SendInterceptor> interceptorList = InterceptorFactory.getSendInterceptor();
-        PriorityQueue<SendInterceptor> sendInterceptorQueue = new PriorityQueue<>(interceptorList.size(), ((o1, o2) -> o2.order() - o1.order()));
+        PriorityQueue<SendInterceptor> sendInterceptorQueue = new PriorityQueue<>(((o1, o2) -> o2.order() - o1.order()));
         Throwable executeEx = doBeforeIntercept(message, resource, interceptorList, sendInterceptorQueue);
 
         boolean executeResult = false;
@@ -126,7 +126,7 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
         // 如果降级传输失败
         // 降级传输前执行
         Collection<DegradeTransferInterceptor> transferInterceptorList = InterceptorFactory.getDegradeTransferInterceptor();
-        PriorityQueue<DegradeTransferInterceptor> exeSuccessfulInterceptorList = new PriorityQueue<>(transferInterceptorList.size(), ((o1, o2) -> o2.order() - o1.order()));
+        PriorityQueue<DegradeTransferInterceptor> exeSuccessfulInterceptorList = new PriorityQueue<>(((o1, o2) -> o2.order() - o1.order()));
         Throwable exeEx = doBeforeTransferIntercept(message, resource, transferInterceptorList, exeSuccessfulInterceptorList);
 
         // 执行降级传输

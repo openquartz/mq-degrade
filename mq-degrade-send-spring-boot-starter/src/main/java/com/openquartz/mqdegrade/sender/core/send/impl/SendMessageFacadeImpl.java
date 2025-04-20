@@ -1,10 +1,14 @@
 package com.openquartz.mqdegrade.sender.core.send.impl;
 
 import com.openquartz.mqdegrade.sender.common.Pair;
+import com.openquartz.mqdegrade.sender.common.exception.ExceptionUtils;
 import com.openquartz.mqdegrade.sender.common.utils.SerdeUtils;
 import com.openquartz.mqdegrade.sender.core.config.DegradeMessageConfig;
 import com.openquartz.mqdegrade.sender.core.factory.DegradeRouterFactory;
 import com.openquartz.mqdegrade.sender.core.factory.SendRouterFactory;
+import com.openquartz.mqdegrade.sender.core.interceptor.DegradeTransferInterceptor;
+import com.openquartz.mqdegrade.sender.core.interceptor.SendInterceptor;
+import com.openquartz.mqdegrade.sender.core.interceptor.InterceptorFactory;
 import com.openquartz.mqdegrade.sender.core.send.DegradeMessageFilter;
 import com.openquartz.mqdegrade.sender.core.send.IMessage;
 import com.openquartz.mqdegrade.sender.core.send.SendMessageFacade;
@@ -15,10 +19,7 @@ import com.alibaba.csp.sentinel.Entry;
 import com.alibaba.csp.sentinel.SphU;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
@@ -47,7 +48,50 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
 
     @Override
     public <T> boolean send(T message, String resource) {
-        return doSend(message, resource);
+
+        Collection<SendInterceptor> interceptorList = InterceptorFactory.getSendInterceptor();
+        PriorityQueue<SendInterceptor> sendInterceptorQueue = new PriorityQueue<>(interceptorList.size(), ((o1, o2) -> o2.order() - o1.order()));
+        Throwable executeEx = doBeforeIntercept(message, resource, interceptorList, sendInterceptorQueue);
+
+        boolean executeResult = false;
+        if (executeEx == null) {
+            try {
+                executeResult = doSend(message, resource);
+            } catch (Throwable ex) {
+                executeEx = ex;
+            }
+        }
+
+        // 执行完成后拦截
+        doCompleteIntercept(sendInterceptorQueue, message, resource, executeResult, executeEx);
+        if (executeEx != null) {
+            return ExceptionUtils.wrapAndThrow(executeEx);
+        }
+        return executeResult;
+    }
+
+    private static <T> Throwable doBeforeIntercept(T message, String resource, Collection<SendInterceptor> interceptorList, PriorityQueue<SendInterceptor> exeSuccessfullyInterceptorQueue) {
+        try {
+            for (SendInterceptor interceptor : interceptorList) {
+                exeSuccessfullyInterceptorQueue.add(interceptor);
+                interceptor.beforeSend(message, resource);
+            }
+        } catch (Throwable ex) {
+            return ex;
+        }
+        return null;
+    }
+
+    private static <T> void doCompleteIntercept(PriorityQueue<SendInterceptor> sendInterceptorQueue, T message, String resource, boolean executeResult, Throwable executeEx) {
+
+        if (sendInterceptorQueue.isEmpty()) {
+            return;
+        }
+
+        while (!sendInterceptorQueue.isEmpty()) {
+            SendInterceptor sendInterceptor = sendInterceptorQueue.poll();
+            sendInterceptor.afterComplete(message, resource, executeResult, executeEx);
+        }
     }
 
     private <T> boolean doSend(T message, String resource) {
@@ -79,10 +123,25 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
 
     private <T> boolean degradeTransfer(T message, String resource) {
 
-        Map<String, String> attributeMap = new HashMap<>();
-
         // 如果降级传输失败
-        if (!doDegradeTransfer(message, resource)) {
+        // 降级传输前执行
+        Collection<DegradeTransferInterceptor> transferInterceptorList = InterceptorFactory.getDegradeTransferInterceptor();
+        PriorityQueue<DegradeTransferInterceptor> exeSuccessfulInterceptorList = new PriorityQueue<>(transferInterceptorList.size(), ((o1, o2) -> o2.order() - o1.order()));
+        Throwable exeEx = doBeforeTransferIntercept(message, resource, transferInterceptorList, exeSuccessfulInterceptorList);
+
+        // 执行降级传输
+        boolean degradeTransferResult = false;
+        try {
+            degradeTransferResult = doDegradeTransfer(message, resource);
+        } catch (Throwable ex) {
+            exeEx = ex;
+        }
+
+        // 降级传输后拦截
+        doAfterCompleteTransferIntercept(exeSuccessfulInterceptorList, message, resource, degradeTransferResult, exeEx);
+
+        // 降级传输失败直接返回false
+        if (!degradeTransferResult) {
             return false;
         }
 
@@ -94,7 +153,29 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
         degradeMessageStorageService.save(resource, SerdeUtils.toJson(message),
                 message instanceof IMessage ? ((IMessage) message).key() : null);
         return true;
+    }
 
+    private <T> void doAfterCompleteTransferIntercept(PriorityQueue<DegradeTransferInterceptor> exeSuccessfulInterceptorList, T message, String resource, boolean degradeTransferResult, Throwable exeEx) {
+        if (exeSuccessfulInterceptorList.isEmpty()) {
+            return;
+        }
+
+        while (!exeSuccessfulInterceptorList.isEmpty()) {
+            DegradeTransferInterceptor degradeTransferInterceptor = exeSuccessfulInterceptorList.poll();
+            degradeTransferInterceptor.afterTransferComplete(message, resource, degradeTransferResult, exeEx);
+        }
+    }
+
+    private <T> Throwable doBeforeTransferIntercept(T message, String resource, Collection<DegradeTransferInterceptor> transferInterceptorList, PriorityQueue<DegradeTransferInterceptor> exeSuccessfulInterceptorList) {
+        try {
+            for (DegradeTransferInterceptor interceptor : transferInterceptorList) {
+                exeSuccessfulInterceptorList.add(interceptor);
+                interceptor.beforeTransfer(message, resource);
+            }
+        } catch (Throwable ex) {
+            return ex;
+        }
+        return null;
     }
 
     /**
@@ -111,7 +192,7 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
 
         // 直接发送
         Predicate<T> sendFunction = classFunctionPair.getValue();
-        return Boolean.TRUE.equals(sendFunction.test(message));
+        return sendFunction.test(message);
     }
 
     /**

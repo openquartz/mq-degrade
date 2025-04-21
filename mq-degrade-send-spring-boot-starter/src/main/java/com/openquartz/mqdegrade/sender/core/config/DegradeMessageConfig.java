@@ -13,7 +13,7 @@ public interface DegradeMessageConfig {
     /**
      * 默认降级资源配置前缀
      */
-    String DEFAULT_MQ_DEGRADE_SENTINEL_RESOURCE_PREFIX = "MQ-DEGRADE.";
+    String DEFAULT_MQ_DEGRADE_RESOURCE_PREFIX = "MQ-DEGRADE.";
 
     /**
      * 是否强制降级传输
@@ -36,8 +36,8 @@ public interface DegradeMessageConfig {
      * @param resource 资源
      * @return sentinel降级资源点
      */
-    default String getAutoDegradeTransferSentinelResource(String resource) {
-        return DEFAULT_MQ_DEGRADE_SENTINEL_RESOURCE_PREFIX + resource;
+    default String getAutoDegradeTransferResource(String resource) {
+        return DEFAULT_MQ_DEGRADE_RESOURCE_PREFIX + resource;
     }
 
     /**

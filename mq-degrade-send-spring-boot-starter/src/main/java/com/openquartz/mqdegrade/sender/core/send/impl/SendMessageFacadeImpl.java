@@ -1,9 +1,11 @@
 package com.openquartz.mqdegrade.sender.core.send.impl;
 
 import com.openquartz.mqdegrade.sender.common.Pair;
+import com.openquartz.mqdegrade.sender.common.exception.DegradeException;
 import com.openquartz.mqdegrade.sender.common.exception.ExceptionUtils;
 import com.openquartz.mqdegrade.sender.common.utils.SerdeUtils;
 import com.openquartz.mqdegrade.sender.core.config.DegradeMessageConfig;
+import com.openquartz.mqdegrade.sender.core.degrade.AutoDegradeSupport;
 import com.openquartz.mqdegrade.sender.core.factory.DegradeRouterFactory;
 import com.openquartz.mqdegrade.sender.core.factory.SendRouterFactory;
 import com.openquartz.mqdegrade.sender.core.interceptor.DegradeTransferInterceptor;
@@ -14,10 +16,6 @@ import com.openquartz.mqdegrade.sender.core.send.IMessage;
 import com.openquartz.mqdegrade.sender.core.send.SendMessageFacade;
 
 import static com.openquartz.mqdegrade.sender.common.exception.ExceptionUtils.wrapAndThrow;
-
-import com.alibaba.csp.sentinel.Entry;
-import com.alibaba.csp.sentinel.SphU;
-import com.alibaba.csp.sentinel.slots.block.BlockException;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -34,16 +32,18 @@ import org.springframework.util.CollectionUtils;
 @Slf4j
 public class SendMessageFacadeImpl implements SendMessageFacade {
 
-    private final DegradeMessageConfig mqDegradeMessageConfig;
+    private final DegradeMessageConfig degradeMessageConfig;
     private final DegradeMessageStorageService degradeMessageStorageService;
     private final DegradeMessageFilter degradeMessageFilter;
+    private final AutoDegradeSupport autoDegradeSupport;
 
-    public SendMessageFacadeImpl(DegradeMessageConfig mqDegradeMessageConfig,
+    public SendMessageFacadeImpl(DegradeMessageConfig degradeMessageConfig,
                                  DegradeMessageStorageService degradeMessageStorageService,
-                                 DegradeMessageFilter degradeMessageFilter) {
-        this.mqDegradeMessageConfig = mqDegradeMessageConfig;
+                                 DegradeMessageFilter degradeMessageFilter, AutoDegradeSupport autoDegradeSupport) {
+        this.degradeMessageConfig = degradeMessageConfig;
         this.degradeMessageStorageService = degradeMessageStorageService;
         this.degradeMessageFilter = degradeMessageFilter;
+        this.autoDegradeSupport = autoDegradeSupport;
     }
 
     @Override
@@ -97,25 +97,16 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
     private <T> boolean doSend(T message, String resource) {
 
         // 1、降级配置开关。是否开启强制降级传输。
-        if (mqDegradeMessageConfig.isEnableForceDegrade(resource)) {
+        if (degradeMessageConfig.isEnableForceDegrade(resource)) {
             return degradeTransfer(message, resource);
         }
 
-        // 2、是否开启自动降级开关。是否满足自动降级条件。(配置sentinel配置降级条件).
-        if (mqDegradeMessageConfig.isEnableAutoDegrade(resource)) {
-            // 开启自动降级时,调用sentinel.决定是否自动降级传输。
-            Entry entry = null;
-            try {
-                entry = SphU.entry(mqDegradeMessageConfig.getAutoDegradeTransferSentinelResource(resource));
-                return directSend(message, resource);
-            } catch (BlockException ex) {
-                log.info("[SendMessageFacade#send] 触发自动降级！resource:{}", resource);
-                return degradeTransfer(message, resource);
-            } finally {
-                if (entry != null) {
-                    entry.exit();
-                }
+        // 2、是否开启自动降级开关。是否满足自动降级条件.
+        if (degradeMessageConfig.isEnableAutoDegrade(resource)) {
+            if (autoDegradeSupport == null) {
+                throw new DegradeException(String.format("resource:%s auto-degrade not support! please config!", resource));
             }
+            return autoDegradeSupport.autoDegrade(resource, res -> degradeTransfer(message, res), res -> directSend(message, res));
         }
 
         return directSend(message, resource);
@@ -213,7 +204,7 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
 
         Exception anyException = null;
         boolean degradeTransferResult = true;
-        if (!mqDegradeMessageConfig.isEnableParallelDegradeTransfer(resource)) {
+        if (!degradeMessageConfig.isEnableParallelDegradeTransfer(resource)) {
 
             // 循环降级执行
             for (Pair<Class<?>, Predicate<?>> degradeFuncPair : pairList) {
@@ -236,7 +227,7 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
         }
 
         // 开启了并行降级传输
-        Executor parallelDegradeExecutor = mqDegradeMessageConfig.getParallelDegradeTransferExecutor();
+        Executor parallelDegradeExecutor = degradeMessageConfig.getParallelDegradeTransferExecutor();
         List<CompletableFuture<Boolean>> futureList = new ArrayList<>();
         for (Pair<Class<?>, Predicate<?>> degradeFuncPair : pairList) {
 

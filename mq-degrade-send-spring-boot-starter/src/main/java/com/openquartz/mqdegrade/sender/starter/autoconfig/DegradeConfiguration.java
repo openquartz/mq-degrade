@@ -11,6 +11,8 @@ import com.openquartz.mqdegrade.sender.core.compensate.impl.DegradeMessageCompen
 import com.openquartz.mqdegrade.sender.core.config.DegradeMessageConfig;
 import com.openquartz.mqdegrade.sender.core.context.DefaultThreadContextSerializer;
 import com.openquartz.mqdegrade.sender.core.context.ThreadContextSerializer;
+import com.openquartz.mqdegrade.sender.core.degrade.AutoDegradeSupport;
+import com.openquartz.mqdegrade.sender.core.degrade.SentinelAutoDegradeSupport;
 import com.openquartz.mqdegrade.sender.core.send.DegradeMessageFilter;
 import com.openquartz.mqdegrade.sender.core.send.SendMessageFacade;
 import com.openquartz.mqdegrade.sender.core.send.impl.SendMessageFacadeImpl;
@@ -27,9 +29,7 @@ import com.openquartz.mqdegrade.sender.starter.autoconfig.property.*;
 import com.openquartz.mqdegrade.sender.starter.autoconfig.transaction.DefaultTransactionProxyImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -96,8 +96,16 @@ public class DegradeConfiguration {
     @Primary
     public SendMessageFacade sendMessageFacade(DegradeMessageConfig degradeMessageConfig,
                                                DegradeMessageStorageService degradeMessageStorageService,
-                                               DegradeMessageFilter degradeMessageFilter) {
-        return new SendMessageFacadeImpl(degradeMessageConfig, degradeMessageStorageService, degradeMessageFilter);
+                                               DegradeMessageFilter degradeMessageFilter,
+                                               AutoDegradeSupport autoDegradeSupport) {
+        return new SendMessageFacadeImpl(degradeMessageConfig, degradeMessageStorageService, degradeMessageFilter, autoDegradeSupport);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(AutoDegradeSupport.class)
+    @ConditionalOnClass(com.alibaba.csp.sentinel.SphU.class)
+    public AutoDegradeSupport autoDegradeSupport(DegradeMessageConfig degradeMessageConfig) {
+        return new SentinelAutoDegradeSupport(degradeMessageConfig);
     }
 
     @Bean

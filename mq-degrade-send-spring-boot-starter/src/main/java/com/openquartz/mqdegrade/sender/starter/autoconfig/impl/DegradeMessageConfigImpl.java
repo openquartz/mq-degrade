@@ -72,12 +72,12 @@ public class DegradeMessageConfigImpl implements DegradeMessageConfig {
     }
 
     @Override
-    public String getAutoDegradeTransferSentinelResource(String resource) {
+    public String getAutoDegradeTransferResource(String resource) {
         DegradeCommonProperty.ResourceDegradeProperty degradeProperty = degradeCommonProperty.getResourceDegrade().get(resource);
         if (Objects.isNull(degradeProperty)
                 || StringUtils.isEmpty(degradeProperty.getAutoDegradeSentinelResource())
                 ||StringUtils.isEmpty(degradeProperty.getAutoDegradeSentinelResource().trim())) {
-            return DegradeMessageConfig.super.getAutoDegradeTransferSentinelResource(resource);
+            return DegradeMessageConfig.super.getAutoDegradeTransferResource(resource);
         }
         return degradeProperty.getAutoDegradeSentinelResource();
     }

@@ -71,7 +71,9 @@ public JdbcTemplate degradeMessageJdbcTemplate(DataSource dataSource) {
 import com.openquartz.mqdegrade.sender.core.factory.SendRouterFactory;
 
 String resource = "SendTest";
-SendRouterFactory.register(resource, String .class, req ->{
+SendRouterFactory.
+
+register(resource, String .class, req ->{
         // TODO 发送消息
         return true;
 });
@@ -98,10 +100,12 @@ public boolean send(String msg) {
 import com.openquartz.mqdegrade.sender.core.factory.DegradeRouterFactory;
 
 String resource = "SendTest";
-DegradeRouterFactory.register(resource, String .class, req ->{
+DegradeRouterFactory.
+
+register(resource, String .class, req ->{
         // TODO 发送消息
         return true;
-});
+        });
 ```
 
 ##### 3.3.2 注解方式绑定
@@ -117,6 +121,7 @@ public boolean send(String msg) {
 ```
 
 ##### 3.4 MQ消息发送
+
 ##### 3.4.1 手动方式发送
 
 ```java
@@ -127,7 +132,7 @@ import javax.annotation.Resource;
 @Resource
 private SendMessageFacade sendMessageFacade;
 
-public boolean sendMessage(String msg){
+public boolean sendMessage(String msg) {
     return sendMessageFacade.send(msg, "SendTest");
 }
 
@@ -161,6 +166,7 @@ class Test2 {
     }
 }
 ```
+
 #### 4、配置
 
 所有配置的设置统一前缀`mq.degrade`
@@ -168,31 +174,31 @@ class Test2 {
 - 公共相关
 
 | 配置                                                                             | 描述                    | 默认值   | 备注 |
-|--------------------------------------------------------------------------------|-----------------------|-------|-|
-| mq.degrade.common.enable                                                       | 是否开启MQ-降级             | true  | |
-| mq.degrade.common.enable-force-degrade                                         | 是否开启MQ-全局强制降级         | false | |
-| mq.degrade.common.enable-auto-degrade                                          | 是否开启MQ-全局自动降级         | false | |
-| mq.degrade.common.resource-degrade.{resource}.enable-force-degrade             | 是否开启MQ-resource强制降级   | false | |
-| mq.degrade.common.resource-degrade.{resource}.enable-auto-degrade              | 是否开启MQ-resource自动降级   | false | |
-| mq.degrade.common.resource-degrade.{resource}.auto-degrade-sentinel-resource   | 自定义 资源对应的Sentinel降级资源 |       | |
-| mq.degrade.common.resource-degrade.{resource}.enable-parallel-degrade-transfer | 是否开启MQ-resource并行降级传输 | false | |
+|--------------------------------------------------------------------------------|-----------------------|-------|----|
+| mq.degrade.common.enable                                                       | 是否开启MQ-降级             | true  |    |
+| mq.degrade.common.enable-force-degrade                                         | 是否开启MQ-全局强制降级         | false |    |
+| mq.degrade.common.enable-auto-degrade                                          | 是否开启MQ-全局自动降级         | false |    |
+| mq.degrade.common.resource-degrade.{resource}.enable-force-degrade             | 是否开启MQ-resource强制降级   | false |    |
+| mq.degrade.common.resource-degrade.{resource}.enable-auto-degrade              | 是否开启MQ-resource自动降级   | false |    |
+| mq.degrade.common.resource-degrade.{resource}.auto-degrade-sentinel-resource   | 自定义 资源对应的Sentinel降级资源 |       |    |
+| mq.degrade.common.resource-degrade.{resource}.enable-parallel-degrade-transfer | 是否开启MQ-resource并行降级传输 | false |    |
 
 - 配置相关
 
-| 配置                 | 描述     | 默认值         | 备注                              |
-|--------------------|--------|-------------|---------------------------------|
+| 配置                          | 描述     | 默认值         | 备注                              |
+|-----------------------------|--------|-------------|---------------------------------|
 | mq.degrade.config.namespace | 默认配置空间 | application | apollo 配置中心配置空间，默认取application. |
 
 - 传输相关
 
-| 配置                                              | 描述            | 默认值 | 备注                             |
-|-------------------------------------------------|---------------|----|--------------------------------|
-| mq.degrade.transfer.enable                      | 是否开启并行传输      | false | |
-| mq.degrade.transfer.thread-pool.thread-prefix   | 并行传输线程池前缀     |   mq-parallel-transfer-thread | |
-| mq.degrade.transfer.thread-pool.core-pool-size  | 并行传输线程池核心线程数  |    | |
-| mq.degrade.transfer.thread-pool.keep-alive-time | 并行传输线程池保持活跃时间 |    | |
-| mq.degrade.transfer.thread-pool.max-pool-size   | 并行传输线程池最大线程数  |    | |
-| mq.degrade.transfer.thread-pool.queue-capacity  | 并行传输线程池队列容量   |    | |
+| 配置                                              | 描述            | 默认值                         | 备注 |
+|-------------------------------------------------|---------------|-----------------------------|----|
+| mq.degrade.transfer.enable                      | 是否开启并行传输      | false                       |    |
+| mq.degrade.transfer.thread-pool.thread-prefix   | 并行传输线程池前缀     | mq-parallel-transfer-thread |    |
+| mq.degrade.transfer.thread-pool.core-pool-size  | 并行传输线程池核心线程数  |                             |    |
+| mq.degrade.transfer.thread-pool.keep-alive-time | 并行传输线程池保持活跃时间 |                             |    |
+| mq.degrade.transfer.thread-pool.max-pool-size   | 并行传输线程池最大线程数  |                             |    |
+| mq.degrade.transfer.thread-pool.queue-capacity  | 并行传输线程池队列容量   |                             |    |
 
 - 补偿相关
 
@@ -218,31 +224,56 @@ class Test2 {
 |----------------------------------------------|---------------|-------|----------------------------|
 | mq.degrade.filter.resource-filter.{resource} | 是否开启资源级别过滤不存储 | false | 开启过滤后降级传输时将不存储到自动补偿到源MQ队列中 |
 
-
-
 #### 5、启动
 
 ### 扩展点支持
 
 #### 1、自定义预警消息发送支持
- 服务提供降级预警接口 `com.openquartz.mqdegrade.sender.common.alert.DegradeAlert`.默认实现采用日志打印到本地，用户可以自定义实现微信/钉钉/邮件等。将预警Bean注入到Spring中。
+
+服务提供降级预警接口 `com.openquartz.mqdegrade.sender.common.alert.DegradeAlert`
+.默认实现采用日志打印到本地，用户可以自定义实现微信/钉钉/邮件等。将预警Bean注入到Spring中。
 
 #### 2、Apollo Config配置自动刷新支持
- starter中的降级补偿配置基本使用了`org.springframework.cloud.context.config.annotation.RefreshScope`的自动刷新方式。并默认兼容了`Apollo Config`配置自动刷新。
- 如果用想使用其他的配置中心的刷新服务，例如：nacos等。可以自行接入并使用`RefreshScrope`刷新配置。
+
+starter中的降级补偿配置基本使用了`org.springframework.cloud.context.config.annotation.RefreshScope`的自动刷新方式。并默认兼容了
+`Apollo Config`配置自动刷新。
+如果用想使用其他的配置中心的刷新服务，例如：nacos等。可以自行接入并使用`RefreshScrope`刷新配置。
 
 #### 3、自定义补偿调度支持
- 服务补偿默认使用do-Raper的方式进行调度，使用本机线程池。不依赖第三方调度中心。如果用户有需要接入自身使用的第三方调度中心。例如xxl-job,dis-job,powerjob 等。可以自行实现。
- 只需调用`com.openquartz.mqdegrade.sender.core.compensate.DegradeMessageCompensateService` 类中的对应的补偿接口即可。
- 
+
+服务补偿默认使用do-Raper的方式进行调度，使用本机线程池。不依赖第三方调度中心。如果用户有需要接入自身使用的第三方调度中心。例如xxl-job,dis-job,powerjob
+等。可以自行实现。
+只需调用`com.openquartz.mqdegrade.sender.core.compensate.DegradeMessageCompensateService` 类中的对应的补偿接口即可。
+
 #### 4、拦截器支持
+
 拦截器支持发送拦截和降级拦截支持。多个拦截器时按照优先级顺序执行。
 用户可以使用拦截器做**Metrics打点监控**、**自定义预警**、**中断**等操作。
 
 - 发送拦截
-可以实现接口: `com.openquartz.mqdegrade.sender.core.interceptor.SendInterceptor`
+  可以实现接口: `com.openquartz.mqdegrade.sender.core.interceptor.SendInterceptor`
 
 - 降级拦截
-可以实现接口: `com.openquartz.mqdegrade.sender.core.interceptor.DegradeTransferInterceptor`
+  可以实现接口: `com.openquartz.mqdegrade.sender.core.interceptor.DegradeTransferInterceptor`
 
 用户可以将自定义的拦截器实现注入到`com.openquartz.mqdegrade.sender.core.interceptor.InterceptorFactory` 工厂中即可。
+
+#### 5、自动降级支持
+
+如果开启自动降级配置，需要用户提供自动降级的实现对应的接口
+`com.openquartz.mqdegrade.sender.core.degrade.AutoDegradeSupport`.
+
+sdk 默认实现了基于Sentinel的`com.openquartz.mqdegrade.sender.core.degrade.AutoDegradeSupport`接口，
+需要用户引入sentinel 相关依赖
+
+```xml
+
+<dependency>
+    <groupId>com.alibaba.csp</groupId>
+    <artifactId>sentinel-core</artifactId>
+    <version>${sentinel.version}</version>
+</dependency>
+
+```
+
+即可开启使用基于Sentinel的自动降级。

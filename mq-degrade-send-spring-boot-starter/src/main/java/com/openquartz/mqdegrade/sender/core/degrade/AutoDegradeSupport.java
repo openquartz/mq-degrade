@@ -2,6 +2,10 @@ package com.openquartz.mqdegrade.sender.core.degrade;
 
 import java.util.function.Function;
 
+/**
+ * 自动降级支持
+ * @author svnee
+ */
 public interface AutoDegradeSupport {
 
     /**

@@ -71,9 +71,7 @@ public JdbcTemplate degradeMessageJdbcTemplate(DataSource dataSource) {
 import com.openquartz.mqdegrade.sender.core.factory.SendRouterFactory;
 
 String resource = "SendTest";
-SendRouterFactory.
-
-register(resource, String .class, req ->{
+SendRouterFactory.register(resource, String .class, req ->{
         // TODO 发送消息
         return true;
 });
@@ -100,9 +98,7 @@ public boolean send(String msg) {
 import com.openquartz.mqdegrade.sender.core.factory.DegradeRouterFactory;
 
 String resource = "SendTest";
-DegradeRouterFactory.
-
-register(resource, String .class, req ->{
+DegradeRouterFactory.register(resource, String .class, req ->{
         // TODO 发送消息
         return true;
         });

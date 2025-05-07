@@ -18,4 +18,9 @@ public class MessageProducer {
         log.info("[MessageProducer#sendMessage] sendMessage:{}", message);
         return true;
     }
+
+    public boolean sendMessage2(String message) {
+        log.info("[MessageProducer#sendMessage2] sendMessage:{}", message);
+        return true;
+    }
 }

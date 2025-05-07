@@ -12,4 +12,12 @@ public class DegradeMessageManager {
     public void degradeTransfer(String degradeMessage) {
         log.info("[DegradeMessageManager#degradeTransfer] degrade-message:{}", degradeMessage);
     }
+
+    public void degradeTransfer2(String degradeMessage) {
+        log.info("[DegradeMessageManager#degradeTransfer2] degrade-message:{}", degradeMessage);
+    }
+
+    public void degradeTransfer3(String degradeMessage) {
+        log.info("[DegradeMessageManager#degradeTransfer3] degrade-message:{}", degradeMessage);
+    }
 }

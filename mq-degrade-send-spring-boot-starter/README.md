@@ -101,7 +101,7 @@ String resource = "SendTest";
 DegradeRouterFactory.register(resource, String .class, req ->{
         // TODO 发送消息
         return true;
-        });
+});
 ```
 
 ##### 3.3.2 注解方式绑定

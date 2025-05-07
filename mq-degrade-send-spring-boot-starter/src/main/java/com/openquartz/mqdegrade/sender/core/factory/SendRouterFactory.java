@@ -27,7 +27,7 @@ public class SendRouterFactory {
      * @param <T> T
      */
     public static <T>void register(String resource, Class<T> messageClazz, Predicate<T> sendRouter) {
-        RESOURCE_2_SEND_ROUTER_MAP.put(resource, new Pair<>(messageClazz, sendRouter));
+        RESOURCE_2_SEND_ROUTER_MAP.putIfAbsent(resource, new Pair<>(messageClazz, sendRouter));
     }
 
     /**

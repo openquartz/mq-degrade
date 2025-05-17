@@ -124,7 +124,7 @@ public boolean sendMessage(String msg) {
 
 ```
 
-###### 3.4.1 注解方式发送(推荐)(与原有流程改动最小)
+###### 3.4.2 注解方式发送(推荐)(与原有流程改动最小)
 
 ```java
 import com.openquartz.mqdegrade.sender.annotation.SendRouter;

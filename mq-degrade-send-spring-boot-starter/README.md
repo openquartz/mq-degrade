@@ -62,24 +62,30 @@ public JdbcTemplate degradeMessageJdbcTemplate(DataSource dataSource) {
 }
 ```
 
-#### 3.2 绑定发送消息的路由
+#### 3.2 绑定发送消息的路由和降级路由
 
 ##### 3.2.1 手动方式绑定
 
 ```java
 
-import com.openquartz.mqdegrade.sender.core.factory.SendRouterFactory;
-
-String resource = "SendTest";
-SendRouterFactory.register(resource, String .class, req ->{
-        // TODO 发送消息
-        return true;
-});
-
+DegradeTransferBindingConfig
+        .builder("test2")
+        // 直接发送消息方法
+        .send(String.class, messageProducer::sendMessage2)
+        // 第一个消费分组降级传输
+        .degrade(String.class, msg -> {
+            degradeMessageManager.degradeTransfer2(msg);
+            return true;
+        })
+         // 第二个消费分组降级传输
+        .degrade(String.class, msg -> {
+            degradeMessageManager.degradeTransfer3(msg);
+            return true;
+        }).binding();
 ```
 
 #### 3.2.2 注解方式绑定
-
+##### 3.2.2.1 发送
 ```java
 
 @SendRouter(resource = "SendTest")
@@ -89,23 +95,7 @@ public boolean send(String msg) {
 }
 
 ```
-
-#### 3.3 配置MQ降级传输
-
-##### 3.3.1 手动方式绑定
-
-```java
-import com.openquartz.mqdegrade.sender.core.factory.DegradeRouterFactory;
-
-String resource = "SendTest";
-DegradeRouterFactory.register(resource, String .class, req ->{
-        // TODO 发送消息
-        return true;
-});
-```
-
-##### 3.3.2 注解方式绑定
-
+##### 3.2.2.2 降级
 ```java
 import com.openquartz.mqdegrade.sender.annotation.DegradeRouter;
 
@@ -134,7 +124,7 @@ public boolean sendMessage(String msg) {
 
 ```
 
-##### 3.4.1 注解方式发送
+##### 3.4.1 注解方式发送(推荐)(与原有流程改动最小)
 
 ```java
 import com.openquartz.mqdegrade.sender.annotation.SendRouter;

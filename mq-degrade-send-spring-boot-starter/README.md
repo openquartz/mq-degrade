@@ -46,7 +46,7 @@ CREATE TABLE `mq_degrade_message_entity`
 
 #### 3、配置代码
 
-#### 3.1 配置JdbcTemplate
+##### 3.1 配置JdbcTemplate
 
 ```java
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -62,9 +62,9 @@ public JdbcTemplate degradeMessageJdbcTemplate(DataSource dataSource) {
 }
 ```
 
-#### 3.2 绑定发送消息的路由和降级路由
+##### 3.2 绑定发送消息的路由和降级路由
 
-##### 3.2.1 手动方式绑定
+###### 3.2.1 手动方式绑定
 
 ```java
 
@@ -84,8 +84,8 @@ DegradeTransferBindingConfig
         }).binding();
 ```
 
-#### 3.2.2 注解方式绑定
-##### 3.2.2.1 发送
+##### 3.2.2 注解方式绑定
+###### 3.2.2.1 发送
 ```java
 
 @SendRouter(resource = "SendTest")
@@ -95,7 +95,7 @@ public boolean send(String msg) {
 }
 
 ```
-##### 3.2.2.2 降级
+###### 3.2.2.2 降级
 ```java
 import com.openquartz.mqdegrade.sender.annotation.DegradeRouter;
 
@@ -108,7 +108,7 @@ public boolean send(String msg) {
 
 ##### 3.4 MQ消息发送
 
-##### 3.4.1 手动方式发送
+###### 3.4.1 手动方式发送
 
 ```java
 import com.openquartz.mqdegrade.sender.core.send.SendMessageFacade;
@@ -124,7 +124,7 @@ public boolean sendMessage(String msg) {
 
 ```
 
-##### 3.4.1 注解方式发送(推荐)(与原有流程改动最小)
+###### 3.4.1 注解方式发送(推荐)(与原有流程改动最小)
 
 ```java
 import com.openquartz.mqdegrade.sender.annotation.SendRouter;

@@ -105,14 +105,14 @@ public class DegradeConfiguration {
     @Bean
     @ConditionalOnMissingBean(AutoDegradeSupport.class)
     @ConditionalOnClass(name = "com.alibaba.csp.sentinel.SphU")
-    public AutoDegradeSupport autoDegradeSupport(DegradeMessageConfig degradeMessageConfig) {
+    public AutoDegradeSupport sentinelAutoDegradeSupport(DegradeMessageConfig degradeMessageConfig) {
         return new SentinelAutoDegradeSupport(degradeMessageConfig);
     }
 
     @Bean
     @ConditionalOnMissingBean(AutoDegradeSupport.class)
     @ConditionalOnMissingClass("com.alibaba.csp.sentinel.SphU")
-    public AutoDegradeSupport autoDegradeSupport() {
+    public AutoDegradeSupport defaultAutoDegradeSupport(){
         return new DefaultAutoDegradeSupport();
     }
 

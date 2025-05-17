@@ -12,7 +12,6 @@
     <modules>
         <module>mq-degrade-send-spring-boot-starter</module>
         <module>mq-degrade-example</module>
-        <module>mq-degrade-example/mq-degrade-example-send</module>
     </modules>
 
     <name>${project.artifactId}</name>

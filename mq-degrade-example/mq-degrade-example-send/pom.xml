@@ -5,16 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.openquartz</groupId>
-        <artifactId>mq-degrade</artifactId>
-        <version>1.0.0</version>
-        <relativePath>../../pom.xml</relativePath>
+        <artifactId>mq-degrade-example</artifactId>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>mq-degrade-example-send</artifactId>
-
+    <version>${revision}</version>
     <packaging>jar</packaging>
 
-    <name>${project.artifactId}</name>
     <description>MQ-Degrade Send Example</description>
 
     <properties>

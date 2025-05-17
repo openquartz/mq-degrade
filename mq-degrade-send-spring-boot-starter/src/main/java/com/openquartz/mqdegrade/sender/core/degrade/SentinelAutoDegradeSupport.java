@@ -25,17 +25,11 @@ public class SentinelAutoDegradeSupport implements AutoDegradeSupport {
     @Override
     public boolean autoDegrade(String resource, Function<String, Boolean> degradeTransferFunc, Function<String, Boolean> directSendFunc) {
         // 开启自动降级时,调用sentinel.决定是否自动降级传输。
-        Entry entry = null;
-        try {
-            entry = SphU.entry(degradeMessageConfig.getAutoDegradeTransferResource(resource));
+        try (Entry ignored = SphU.entry(degradeMessageConfig.getAutoDegradeTransferResource(resource));) {
             return degradeTransferFunc.apply(resource);
         } catch (BlockException ex) {
             log.info("[SentinelAutoDegradeSupport#autoDegrade] 触发自动降级！resource:{}", resource);
             return directSendFunc.apply(resource);
-        } finally {
-            if (entry != null) {
-                entry.exit();
-            }
         }
     }
 }

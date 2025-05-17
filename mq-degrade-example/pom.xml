@@ -11,10 +11,9 @@
 
     <packaging>pom</packaging>
 
-    <artifactId>mq-degrade-example</artifactId>
+    <version>${revision}</version>
 
-    <name>${project.artifactId}</name>
-    <description>${project.artifactId}</description>
+    <artifactId>mq-degrade-example</artifactId>
 
     <modules>
         <module>mq-degrade-example-send</module>

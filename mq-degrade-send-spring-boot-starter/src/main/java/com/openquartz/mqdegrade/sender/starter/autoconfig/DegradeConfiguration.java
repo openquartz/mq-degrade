@@ -12,6 +12,7 @@ import com.openquartz.mqdegrade.sender.core.config.DegradeMessageConfig;
 import com.openquartz.mqdegrade.sender.core.context.DefaultThreadContextSerializer;
 import com.openquartz.mqdegrade.sender.core.context.ThreadContextSerializer;
 import com.openquartz.mqdegrade.sender.core.degrade.AutoDegradeSupport;
+import com.openquartz.mqdegrade.sender.core.degrade.DefaultAutoDegradeSupport;
 import com.openquartz.mqdegrade.sender.core.degrade.SentinelAutoDegradeSupport;
 import com.openquartz.mqdegrade.sender.core.send.DegradeMessageFilter;
 import com.openquartz.mqdegrade.sender.core.send.SendMessageFacade;
@@ -103,9 +104,16 @@ public class DegradeConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(AutoDegradeSupport.class)
-    @ConditionalOnClass(com.alibaba.csp.sentinel.SphU.class)
+    @ConditionalOnClass(name = "com.alibaba.csp.sentinel.SphU")
     public AutoDegradeSupport autoDegradeSupport(DegradeMessageConfig degradeMessageConfig) {
         return new SentinelAutoDegradeSupport(degradeMessageConfig);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(AutoDegradeSupport.class)
+    @ConditionalOnMissingClass("com.alibaba.csp.sentinel.SphU")
+    public AutoDegradeSupport autoDegradeSupport() {
+        return new DefaultAutoDegradeSupport();
     }
 
     @Bean

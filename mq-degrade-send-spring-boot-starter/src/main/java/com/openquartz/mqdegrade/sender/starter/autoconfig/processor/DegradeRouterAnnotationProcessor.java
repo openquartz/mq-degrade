@@ -46,7 +46,7 @@ public class DegradeRouterAnnotationProcessor implements BeanPostProcessor {
             throw new DegradeException(String.format("resource:%s,method:%s return type must be boolean or void", degradeRouter.resource(), method.getName()));
         }
 
-        DegradeRouterFactory.register(degradeRouter.resource(), method.getParameterTypes()[0], inv -> {
+        DegradeRouterFactory.register(degradeRouter.resource(), degradeRouter.degradeResource(), method.getParameterTypes()[0], inv -> {
             try {
                 if (method.getReturnType().isAssignableFrom(boolean.class)) {
                     return (boolean) method.invoke(bean, inv);

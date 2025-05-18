@@ -20,4 +20,11 @@ public @interface DegradeRouter {
      * @return resource
      */
     String resource();
+
+    /**
+     * 降级资源
+     *
+     * @return 降级-resource
+     */
+    String degradeResource();
 }

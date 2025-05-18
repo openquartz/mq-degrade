@@ -4,6 +4,8 @@ import com.openquartz.mqdegrade.sender.common.Pair;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 /**
@@ -20,7 +22,7 @@ public class DegradeTransferBindingConfig {
 
         private Pair<Class, Predicate> sendPair;
 
-        private List<Pair<Class, Predicate>> degradeList = new LinkedList<>();
+        private Map<String, Pair<Class, Predicate>> degradeList = new ConcurrentHashMap<>();
 
         private DegradeTransferBindingConfigBuilder(String resource) {
             this.resource = resource;
@@ -28,10 +30,11 @@ public class DegradeTransferBindingConfig {
 
         /**
          * 直接发送配置
-         * @param messageClazz 消息类型
+         *
+         * @param messageClazz  消息类型
          * @param sendPredicate 发送函数
+         * @param <T>           T 消息类
          * @return builder
-         * @param <T> T 消息类
          */
         public <T> DegradeTransferBindingConfigBuilder send(Class<T> messageClazz, Predicate<T> sendPredicate) {
             assert messageClazz != null;
@@ -42,15 +45,16 @@ public class DegradeTransferBindingConfig {
 
         /**
          * 降级传输配置
-         * @param messageClazz 降级传输类
+         *
+         * @param messageClazz     降级传输类
          * @param degradePredicate 降级传输函数
+         * @param <T>              T 降级传输消息类
          * @return builder
-         * @param <T> T 降级传输消息类
          */
-        public <T> DegradeTransferBindingConfigBuilder degrade(Class<T> messageClazz, Predicate<T> degradePredicate) {
+        public <T> DegradeTransferBindingConfigBuilder degrade(String degradeResource, Class<T> messageClazz, Predicate<T> degradePredicate) {
             assert messageClazz != null;
             assert degradePredicate != null;
-            this.degradeList.add(Pair.of(messageClazz, degradePredicate));
+            this.degradeList.putIfAbsent(degradeResource, Pair.of(messageClazz, degradePredicate));
             return this;
         }
 
@@ -65,9 +69,9 @@ public class DegradeTransferBindingConfig {
 
             SendRouterFactory.register(resource, sendPair.getKey(), sendPair.getValue());
 
-            for (Pair<Class, Predicate> degradeFunc : degradeList) {
-                DegradeRouterFactory.register(resource, degradeFunc.getKey(), degradeFunc.getValue());
-            }
+            degradeList.forEach((degradeResource, v) -> {
+                DegradeRouterFactory.register(resource, degradeResource, v.getKey(), v.getValue());
+            });
 
         }
     }

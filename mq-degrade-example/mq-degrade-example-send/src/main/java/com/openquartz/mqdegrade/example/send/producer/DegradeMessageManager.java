@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DegradeMessageManager {
 
-    @DegradeRouter(resource = "test")
+    @DegradeRouter(resource = "test", degradeResource = "test_group1")
     public void degradeTransfer(String degradeMessage) {
         log.info("[DegradeMessageManager#degradeTransfer] degrade-message:{}", degradeMessage);
     }

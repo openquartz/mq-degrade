@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 
 /**
  * 降级路由工厂
+ *
  * @author svnee
  */
 public class DegradeRouterFactory {
@@ -20,27 +21,29 @@ public class DegradeRouterFactory {
     /**
      * 注册降级传输列表
      */
-    private static final Map<String, List<Pair<Class<?>, Predicate<?>>>> RESOURCE_2_DEGRADE_LIST_MAP = new ConcurrentHashMap<>();
+    private static final Map<String, Map<String, Pair<Class<?>, Predicate<?>>>> RESOURCE_2_DEGRADE_LIST_MAP = new ConcurrentHashMap<>();
 
     /**
      * 注册降级传输
-     * @param resource 资源/topic
+     *
+     * @param resource     资源/topic
      * @param messageClazz 消息类型
-     * @param predicate 是否发送成功方法
-     * @param <T> T
+     * @param predicate    是否发送成功方法
+     * @param <T>          T
      */
-    public static <T> void register(String resource, Class<T> messageClazz, Predicate<T> predicate) {
+    public static <T> void register(String resource, String degradeResource, Class<T> messageClazz, Predicate<T> predicate) {
         RESOURCE_2_DEGRADE_LIST_MAP
-                .computeIfAbsent(resource, k -> new LinkedList<>())
-                .add(new Pair<>(messageClazz, predicate));
+                .computeIfAbsent(resource, k -> new ConcurrentHashMap<>())
+                .computeIfAbsent(degradeResource, k -> new Pair<>(messageClazz, predicate));
     }
 
     /**
      * 获取降级传输列表
+     *
      * @param resource 资源/topic
      * @return 降级传输列表
      */
-    public static List<Pair<Class<?>, Predicate<?>>> get(String resource) {
+    public static Map<String, Pair<Class<?>, Predicate<?>>> get(String resource) {
         return RESOURCE_2_DEGRADE_LIST_MAP.get(resource);
     }
 

@@ -19,6 +19,7 @@ import static com.openquartz.mqdegrade.sender.common.exception.ExceptionUtils.wr
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 
@@ -197,26 +198,34 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
     @SuppressWarnings("all")
     private <T> boolean doDegradeTransfer(T message, String resource) {
 
-        List<Pair<Class<?>, Predicate<?>>> pairList = DegradeRouterFactory.get(resource);
-        if (CollectionUtils.isEmpty(pairList)) {
+        Map<String, Pair<Class<?>, Predicate<?>>> degradeTransferMap = DegradeRouterFactory.get(resource);
+        if (CollectionUtils.isEmpty(degradeTransferMap)) {
             return true;
         }
 
         Exception anyException = null;
         boolean degradeTransferResult = true;
+        // 降级传输失败的资源
+        Set<String> failedDegreadeResourceList = ConcurrentHashMap.newKeySet();
         if (!degradeMessageConfig.isEnableParallelDegradeTransfer(resource)) {
 
             // 循环降级执行
-            for (Pair<Class<?>, Predicate<?>> degradeFuncPair : pairList) {
-                Class<?> k = degradeFuncPair.getKey();
-                Object object = SerdeUtils.serdeConvert(message, k);
-                Predicate degradeFunction = degradeFuncPair.getValue();
+            for (Map.Entry<String, Pair<Class<?>, Predicate<?>>> degradeFuncEntry : degradeTransferMap.entrySet()) {
+                Class<?> degradeTransferMsgType = degradeFuncEntry.getValue().getKey();
+                Object object = SerdeUtils.serdeConvert(message, degradeTransferMsgType);
+                Predicate degradeFunction = degradeFuncEntry.getValue().getValue();
                 try {
                     // 降级结果
                     degradeTransferResult = degradeTransferResult && degradeFunction.test(object);
                 } catch (Exception ex) {
                     anyException = ex;
+                    failedDegreadeResourceList.add(degradeFuncEntry.getKey());
                 }
+            }
+
+            if (!failedDegreadeResourceList.isEmpty()) {
+                log.error("[SendMessageFacade#doDegradeTransfer] resource:{},msg:{} degrade-send failed resource:{}",
+                        resource, message, failedDegreadeResourceList);
             }
 
             if (anyException != null) {
@@ -228,24 +237,30 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
 
         // 开启了并行降级传输
         Executor parallelDegradeExecutor = degradeMessageConfig.getParallelDegradeTransferExecutor();
-        List<CompletableFuture<Boolean>> futureList = new ArrayList<>();
-        for (Pair<Class<?>, Predicate<?>> degradeFuncPair : pairList) {
+        List<Pair<String,CompletableFuture<Boolean>>> futureList = new ArrayList<>();
+        for (Map.Entry<String, Pair<Class<?>, Predicate<?>>> degradeFuncEntry : degradeTransferMap.entrySet()) {
 
-            Class<?> k = degradeFuncPair.getKey();
-            Object object = SerdeUtils.serdeConvert(message, k);
-            Predicate degradeFunction = degradeFuncPair.getValue();
+            Class<?> degradeTransferMsgType = degradeFuncEntry.getValue().getKey();
+            Object object = SerdeUtils.serdeConvert(message, degradeTransferMsgType);
+            Predicate degradeFunction = degradeFuncEntry.getValue().getValue();
 
             CompletableFuture<Boolean> future = CompletableFuture
                     .supplyAsync(() -> degradeFunction.test(object), parallelDegradeExecutor);
-            futureList.add(future);
+            futureList.add(Pair.of(degradeFuncEntry.getKey(),future));
         }
 
-        for (CompletableFuture<Boolean> future : futureList) {
+        for (Pair<String, CompletableFuture<Boolean>> futurePair : futureList) {
             try {
-                degradeTransferResult = degradeTransferResult && future.get();
+                degradeTransferResult = degradeTransferResult && futurePair.getValue().get();
             } catch (Exception ex) {
                 anyException = ex;
+                failedDegreadeResourceList.add(futurePair.getKey());
             }
+        }
+
+        if (!failedDegreadeResourceList.isEmpty()) {
+            log.error("[SendMessageFacade#doDegradeTransfer] resource:{},msg:{} degrade-send failed resource:{}",
+                    resource, message, failedDegreadeResourceList);
         }
 
         if (anyException != null) {

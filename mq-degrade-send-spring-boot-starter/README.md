@@ -73,12 +73,12 @@ DegradeTransferBindingConfig
         // 直接发送消息方法
         .send(String.class, messageProducer::sendMessage2)
         // 第一个消费分组降级传输
-        .degrade(String.class, msg -> {
+        .degrade("test2_group1",String.class, msg -> {
             degradeMessageManager.degradeTransfer2(msg);
             return true;
         })
          // 第二个消费分组降级传输
-        .degrade(String.class, msg -> {
+        .degrade("test2_group2",String.class, msg -> {
             degradeMessageManager.degradeTransfer3(msg);
             return true;
         }).binding();
@@ -99,7 +99,7 @@ public boolean send(String msg) {
 ```java
 import com.openquartz.mqdegrade.sender.annotation.DegradeRouter;
 
-@DegradeRouter(resource = "SendTest")
+@DegradeRouter(resource = "SendTest",degradeResource = "test2_group1")
 public boolean send(String msg) {
     // TODO 发送消息
     return true;

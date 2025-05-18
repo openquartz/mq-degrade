@@ -75,12 +75,12 @@ public class DegradeMessageApolloConfigRefresher implements EnvironmentAware {
 
     private void onChange(ConfigChangeEvent configChangeEvent) {
 
-        if (configChangeEvent.changedKeys().stream().noneMatch(e -> e.startsWith(PREFIX))) {
+        if (configChangeEvent.changedKeys().stream().noneMatch(changeKey -> changeKey.startsWith(PREFIX))) {
             return;
         }
 
         PROPERTY_PREFIX_2_BEAN_NAME_MAP.forEach((key, value) -> {
-            if (configChangeEvent.changedKeys().stream().anyMatch(e -> e.startsWith(key))) {
+            if (configChangeEvent.changedKeys().stream().anyMatch(changeKey -> changeKey.startsWith(key))) {
                 try {
                     refreshScope.refresh(value);
                 } catch (Exception ex) {

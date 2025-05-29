@@ -1,5 +1,7 @@
 ## MQ降级传输-推模式（接入指南）
 
+> **注意**：本项目未发布到maven中央仓库，需要手动添加到本地仓库 或者 到私有仓库中使用。
+
 ### 快速开始
 
 #### 1、引入依赖
@@ -7,7 +9,6 @@
 - maven项目引入
 
 ```xml
-
 <dependency>
     <groupId>com.openquartz</groupId>
     <artifactId>mq-degrade-send-spring-boot-starter</artifactId>

@@ -224,7 +224,7 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
             }
 
             if (!failedDegreadeResourceList.isEmpty()) {
-                log.error("[SendMessageFacade#doDegradeTransfer] resource:{},msg:{} degrade-send failed resource:{}",
+                log.error("[SendMessageFacade#doDegradeTransfer] resource:{},msg:{} degrade-send failed degrade-resource:{}",
                         resource, message, failedDegreadeResourceList);
             }
 

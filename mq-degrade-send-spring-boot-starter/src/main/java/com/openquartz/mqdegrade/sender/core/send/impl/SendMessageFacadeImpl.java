@@ -40,7 +40,8 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
 
     public SendMessageFacadeImpl(DegradeMessageConfig degradeMessageConfig,
                                  DegradeMessageStorageService degradeMessageStorageService,
-                                 DegradeMessageFilter degradeMessageFilter, AutoDegradeSupport autoDegradeSupport) {
+                                 DegradeMessageFilter degradeMessageFilter,
+                                 AutoDegradeSupport autoDegradeSupport) {
         this.degradeMessageConfig = degradeMessageConfig;
         this.degradeMessageStorageService = degradeMessageStorageService;
         this.degradeMessageFilter = degradeMessageFilter;
@@ -71,7 +72,9 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
         return executeResult;
     }
 
-    private static <T> Throwable doBeforeIntercept(T message, String resource, Collection<SendInterceptor> interceptorList, PriorityQueue<SendInterceptor> exeSuccessfullyInterceptorQueue) {
+    private static <T> Throwable doBeforeIntercept(T message, String resource,
+                                                   Collection<SendInterceptor> interceptorList,
+                                                   PriorityQueue<SendInterceptor> exeSuccessfullyInterceptorQueue) {
         try {
             for (SendInterceptor interceptor : interceptorList) {
                 exeSuccessfullyInterceptorQueue.add(interceptor);
@@ -83,7 +86,10 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
         return null;
     }
 
-    private static <T> void doCompleteIntercept(PriorityQueue<SendInterceptor> sendInterceptorQueue, T message, String resource, boolean executeResult, Throwable executeEx) {
+    private static <T> void doCompleteIntercept(PriorityQueue<SendInterceptor> sendInterceptorQueue,
+                                                T message, String resource,
+                                                boolean executeResult,
+                                                Throwable executeEx) {
 
         if (sendInterceptorQueue.isEmpty()) {
             return;
@@ -147,7 +153,10 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
         return true;
     }
 
-    private <T> void doAfterCompleteTransferIntercept(PriorityQueue<DegradeTransferInterceptor> exeSuccessfulInterceptorList, T message, String resource, boolean degradeTransferResult, Throwable exeEx) {
+    private <T> void doAfterCompleteTransferIntercept(PriorityQueue<DegradeTransferInterceptor> exeSuccessfulInterceptorList,
+                                                      T message, String resource,
+                                                      boolean degradeTransferResult,
+                                                      Throwable exeEx) {
         if (exeSuccessfulInterceptorList.isEmpty()) {
             return;
         }
@@ -158,7 +167,10 @@ public class SendMessageFacadeImpl implements SendMessageFacade {
         }
     }
 
-    private <T> Throwable doBeforeTransferIntercept(T message, String resource, Collection<DegradeTransferInterceptor> transferInterceptorList, PriorityQueue<DegradeTransferInterceptor> exeSuccessfulInterceptorList) {
+    private <T> Throwable doBeforeTransferIntercept(T message,
+                                                    String resource,
+                                                    Collection<DegradeTransferInterceptor> transferInterceptorList,
+                                                    PriorityQueue<DegradeTransferInterceptor> exeSuccessfulInterceptorList) {
         try {
             for (DegradeTransferInterceptor interceptor : transferInterceptorList) {
                 exeSuccessfulInterceptorList.add(interceptor);

@@ -3,7 +3,7 @@
 
 ## Welcome to Star!!!
 
-**[Home](https://openquartz.github.io/)** | **[GitHub](https://github.com/openquartz/mq-degrade)**
+**[主页](https://openquartz.github.io/)** | **[GitHub](https://github.com/openquartz/mq-degrade)**
 
 MQ目前在微服务系统中的被越来越多的服务使用,甚至出现在一些核心链路中。
 但是MQ的稳定性，就需要很好的保证。

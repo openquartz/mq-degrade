@@ -2,6 +2,11 @@
 
 [中文版本](README_zh.md)
 
+
+## Welcome to Star!!!
+
+**[Home](https://openquartz.github.io/)** | **[GitHub](https://github.com/openquartz/mq-degrade)**
+
 MQ (Message Queue) is increasingly being used in microservices systems, even appearing in some core business processes.
 However, the stability of MQ must be well guaranteed.
 From a developer's perspective, what can be done regarding MQ service stability is to minimize the impact on services when MQ encounters issues, especially on core business flows.

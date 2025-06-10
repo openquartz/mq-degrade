@@ -2,7 +2,6 @@
 
 [中文版本](README_zh.md)
 
-
 ## Welcome to Star!!!
 
 **[Home](https://openquartz.github.io/)** | **[GitHub](https://github.com/openquartz/mq-degrade)**

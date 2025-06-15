@@ -7,10 +7,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 /**
- * 绑定降级传输配置
+ * 绑定降级传输配置.(手动方式绑定降级配置)
  *
- * 使用样例：
- * <code>
+ * <p>使用样例：
+ * <blockquote><pre>
  *      DegradeTransferBindingConfig
  *                 .builder("test2")
  *                 // 直接发送
@@ -26,7 +26,8 @@ import java.util.function.Predicate;
  *                     return true;
  *                 })
  *                 .binding();
- * </code>
+ * </pre></blockquote>
+ * </p>
  *
  * @author svnee
  */

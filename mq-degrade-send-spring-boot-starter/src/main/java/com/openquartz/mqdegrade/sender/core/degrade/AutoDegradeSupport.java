@@ -9,7 +9,7 @@ import java.util.function.Function;
 public interface AutoDegradeSupport {
 
     /**
-     * 自动降级
+     * 是否自动降级
      *
      * @param resource 资源
      * @param degradeTransferFunc 降级转移

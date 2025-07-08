@@ -2,14 +2,18 @@ package com.openquartz.mqdegrade.sender.common.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openquartz.mqdegrade.sender.common.exception.DegradeException;
 import com.openquartz.mqdegrade.sender.common.exception.ExceptionUtils;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * JacksonConvertor
@@ -19,6 +23,9 @@ import java.text.SimpleDateFormat;
 public class JacksonConvertor implements JsonConvertor {
 
     private final ObjectMapper mapper = newMapper();
+
+    // 缓存已编译的类型
+    private static final Map<Type, JavaType> JACKSON_TYPE_CACHE = new ConcurrentHashMap<>();
 
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
@@ -69,7 +76,9 @@ public class JacksonConvertor implements JsonConvertor {
             return null;
         }
         try {
-            return mapper.readValue(json, classOfT);
+            JavaType javaType = JACKSON_TYPE_CACHE.computeIfAbsent(classOfT, t -> mapper.getTypeFactory().constructType(t)
+            );
+            return mapper.readValue(json, javaType);
         } catch (IOException e) {
             return ExceptionUtils.wrapAndThrow(e);
         }

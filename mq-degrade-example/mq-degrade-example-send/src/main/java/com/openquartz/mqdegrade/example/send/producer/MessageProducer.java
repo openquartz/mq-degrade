@@ -4,6 +4,8 @@ import com.openquartz.mqdegrade.sender.annotation.SendRouter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import static com.openquartz.mqdegrade.example.send.constants.MQResourceConstant.TEST_RESOURCE;
+
 @Slf4j
 @Component
 public class MessageProducer {
@@ -13,7 +15,7 @@ public class MessageProducer {
      *
      * @param message 消息
      */
-    @SendRouter(resource = "test")
+    @SendRouter(resource = TEST_RESOURCE)
     public boolean sendMessage(String message) {
         log.info("[MessageProducer#sendMessage] sendMessage:{}", message);
         return true;

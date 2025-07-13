@@ -2,6 +2,8 @@
 
 > **Note**: This project has not been published to the Maven Central Repository and needs to be manually added to a local or private repository for use.
 
+[中文版本](README_zh.md) | [English](README.md)
+
 ### Quick Start
 
 #### 1. Add Dependencies

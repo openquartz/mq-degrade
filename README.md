@@ -1,30 +1,29 @@
-# MQ Degradation Strategy
-
-[中文版本](README_zh.md)
+# MQ降级方案
+[English](README_cn.md)|**中文**
 
 ## Welcome to Star!!!
 
-**[Home](https://openquartz.github.io/)** | **[GitHub](https://github.com/openquartz/mq-degrade)**
+**[主页](https://openquartz.github.io/)** | **[GitHub](https://github.com/openquartz/mq-degrade)**
 
-MQ (Message Queue) is increasingly being used in microservices systems, even appearing in some core business processes.
-However, the stability of MQ must be well guaranteed.
-From a developer's perspective, what can be done regarding MQ service stability is to minimize the impact on services when MQ encounters issues, especially on core business flows.
-Common MQ stability assurance strategies include: multi-cluster deployment, degradation transmission, etc.
+MQ目前在微服务系统中的被越来越多的服务使用,甚至出现在一些核心链路中。
+但是MQ的稳定性，就需要很好的保证。
+对于开发者而言，针对MQ的服务稳定性,能做的便是MQ出现问题时，能否尽可能的降低对服务的影响，尤其是核心链路上的业务。
+常用的MQ稳定性保障方案：多集群部署、降级传输等。
 
-This document outlines a strategy specifically designed for degradation transmission. It mainly focuses on MQ stability assurance from the development side. \
-There are two common implementation approaches for degradation transmission:**Push Mode** and **Pull Mode**.
+当前便是针对于降级传输所做的方案。主要针对于开发侧做的MQ稳定性保障。\
+降级传输的方案常用的有两种实现方式：**推模式**、**拉模式**。
 
-- I. Push Mode (based on MQ producers)
+- 一、推模式（基于MQ的生产者）
 
-In push mode, the MQ producer pushes messages to the MQ, which then pushes them to consumers. When the MQ service becomes abnormal, the producer degrades the transmission to other channels to deliver messages to consumers. \
-For example, when MQ is abnormal, the producer automatically sends messages through HTTP/RPC interfaces to notify consumers.
+推模式，就是MQ生产者将消息推送给MQ，MQ将消息推送给消费者。当MQ服务异常时，生产者通过降级传输到其他渠道给到消费者。\
+例如：当MQ异常时,生产者自动将消息通过HTTP/RPC接口的形式通知到消费者。
 
-**Advantages**: Simple transformation, less prone to traffic spikes, relatively high stability. Automatic degradation triggering can be configured (custom degradation rules), requiring no manual intervention. \
-**Disadvantages**: MQ consumer QPS is limited by storage QPS; QPS limits may be exceeded during high traffic.
+**优点**： 改造简单，不易形成尖刺，稳定性相对较高，可设置自动降级触发（自定义降级规则）无需人工介入。\
+**缺点**： MQ消费QPS受限于存储的QPS,流量高时会出现QPS超限。
 
-- II. Pull Mode (based on MQ consumers)
+- 二、拉模式（基于MQ的消费者）
 
-In pull mode, consumers actively pull messages from the MQ. When the MQ service becomes abnormal, consumers pull data directly from the producer's interface into their own service.
+拉模式，就是消费者从MQ拉取消息。当MQ服务异常时，消费者通过生产者提供的接口主动的拉取数据到消费者的服务中。
 
-The commonly used middleware implementation for **Push Mode** is `mq-degrade-send-spring-boot-starter`. Using this middleware enables rapid implementation of MQ degradation transmission with minimal intrusion.  
-**Push Mode Degradation** Integration Guide: [MQ Degradation Transmission - Push Mode (Integration Guide)](./mq-degrade-send-spring-boot-starter/README.md)
+当前针对于**推模式**的通用中间件的实现为`mq-degrade-send-spring-boot-starter`.使用此中间件可以以最小的侵入性，快速的实现MQ的降级传输功能。
+**推模式降级** 接入指南：[MQ降级传输-推模式（接入指南）](./mq-degrade-send-spring-boot-starter/README_zh.md)
